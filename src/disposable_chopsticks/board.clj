@@ -6,7 +6,8 @@
 (defprotocol IBoard
   (state [this])
   (actions [this turn])
-  (next-board [this action]))
+  (next-board [this action])
+  (won? [this]))
 
 (defn- -hands [board turn]
   (let [{first-hands :1st second-hands :2nd} (state board)]
@@ -54,11 +55,17 @@
              (partition 2))]
     {:1st first-hands :2nd second-hands}))
 
+(defn- -won? [{first-hands :1st second-hands :2nd}]
+  (cond
+    (= first-hands [0 0]) :1st
+    (= second-hands [0 0]) :2nd))
+
 (deftype Board [state]
   IBoard
   (state [_] state)
   (actions [this turn] (-actions (-hands this turn) turn))
-  (next-board [_ action] (Board. (-next-board state action))))
+  (next-board [_ action] (Board. (-next-board state action)))
+  (won? [_] (-won? state)))
 
 (defn board
   [& {first-hands :1st second-hands :2nd}]

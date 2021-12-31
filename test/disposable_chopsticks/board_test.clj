@@ -2,8 +2,6 @@
   (:require [clojure.test :refer [deftest is]]
             [disposable-chopsticks.board :refer :all]))
 
-(actions (board) :1st)
-
 (deftest initial-board-test
   (is (= (state (board))
          {:1st [1 1] :2nd [1 1]}))
@@ -28,7 +26,6 @@
     (is (some #{[2 0]} second-actions))
     (is (some #{[2 1]} second-actions))))
 
-
 (deftest loop-my-action-test
   (is (not (some #{[0 1 1]} (actions (board :1st [2 1] :2nd [0 1]) :1st))))
   (is (not (some #{[1 0 2]} (actions (board :1st [1 3] :2nd [0 1]) :1st)))))
@@ -48,3 +45,8 @@
          {:1st [0 0] :2nd [1 2]}))
   (is (= (state (next-board (board :1st [4 0] :2nd [1 2]) [3 0]))
          {:1st [1 0] :2nd [1 2]})))
+
+(deftest won?-test
+  (is (= (won? (board)) nil))
+  (is (= (won? (board :1st [0 0] :2nd [2 3])) :1st))
+  (is (= (won? (board :1st [2 3] :2nd [0 0])) :2nd)))
