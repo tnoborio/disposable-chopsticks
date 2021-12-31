@@ -4,24 +4,52 @@
   (:gen-class))
 
 (defprotocol IBoard
-  (internal [this])
-  (bar-me [this] [this y]))
+  (state [this])
+  (actions [this turn]))
 
-(deftype Board [first second]
+(defn- -hands [board turn]
+  (let [{first-hands :1st second-hands :2nd} (state board)]
+    (if (= turn :1st)
+      [first-hands second-hands]
+      [second-hands first-hands])))
+
+(defn- -my-actions [[left right]]
+  (concat
+   (for [i (range 1 (inc left))
+         :when (not= [left right] [(+ right i) (- left i)])]
+     [0 1 i])
+   (for [i (range 1 (inc right))
+         :when (not= [left right] [(- right i) (+ left i)])]
+     [1 0 i])))
+
+(-my-actions [2 1])
+(-my-actions [1 2])
+
+(defn- -opposite-actions [[left right] opposite-hand opposite-index]
+  (filter identity
+          [(when (and (> left 0)
+                      (> opposite-hand 0))
+             [0 opposite-index])
+           (when (and (> right 0)
+                      (> opposite-hand 0))
+             [1 opposite-index])]))
+
+(defn- -actions [[my-hands [opposite-left opposite-right]]]
+  (concat
+   (-my-actions my-hands)
+   (-opposite-actions my-hands opposite-left 2)
+   (-opposite-actions my-hands opposite-right 3)))
+
+(deftype Board [state]
   IBoard
-  (internal [this] [first second])
-  (bar-me [this])
-  (bar-me [this y] (+ y)))
+  (state [_] state)
+  (actions [this turn] (-actions (-hands this turn))))
 
 (defn board
-  [& {:keys [first second]}]
-  {:pre [(or (vector? first) (nil? first))
-         (or (vector? second) (nil? second))]}
-  (->Board (or first [1 1]) (or second [1 1])))
-
-
-(board)
-
+  [& {first-hands :1st second-hands :2nd}]
+  (->Board
+   {:1st (or first-hands [1 1])
+    :2nd (or second-hands [1 1])}))
 
 ;; (def board-symbol-map {:1st "1st" :2nd "2nd"})
 
@@ -39,9 +67,6 @@
 ;;     (when (>= index 0) index)))
 
 ;; (def computer :1st)
-
-;; (defn get-empty-board []
-;;   [[1 1] [1 1]])
 
 ;; (defn print-board
 ;;   [board]
