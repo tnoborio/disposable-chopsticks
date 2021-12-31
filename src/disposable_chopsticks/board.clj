@@ -22,9 +22,6 @@
          :when (not= [left right] [(- right i) (+ left i)])]
      [1 0 i])))
 
-(-my-actions [2 1])
-(-my-actions [1 2])
-
 (defn- -opposite-actions [[left right] opposite-hand opposite-index]
   (filter identity
           [(when (and (> left 0)
