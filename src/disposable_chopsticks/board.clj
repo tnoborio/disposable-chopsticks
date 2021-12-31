@@ -4,16 +4,24 @@
   (:gen-class))
 
 (defprotocol IBoard
-  (foo [this])
+  (internal [this])
   (bar-me [this] [this y]))
 
-(deftype Board [a b c]
+(deftype Board [first second]
   IBoard
-  (foo [this] a)
-  (bar-me [this] b)
-  (bar-me [this y] (+ c y)))
+  (internal [this] [first second])
+  (bar-me [this])
+  (bar-me [this y] (+ y)))
 
-(bar-me (Board. 1 2 3) 42)
+(defn board
+  [& {:keys [first second]}]
+  {:pre [(or (vector? first) (nil? first))
+         (or (vector? second) (nil? second))]}
+  (->Board (or first [1 1]) (or second [1 1])))
+
+
+(board)
+
 
 ;; (def board-symbol-map {:1st "1st" :2nd "2nd"})
 

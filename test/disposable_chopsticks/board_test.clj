@@ -1,12 +1,10 @@
 (ns disposable-chopsticks.board-test
   (:require [clojure.test :refer [deftest is]]
-            [disposable-chopsticks.board :as board]))
+            [disposable-chopsticks.board :refer :all]))
 
-(import 'disposable-chopsticks.board.Board)
+(deftest initial-board
+  (is (= (internal (board))
+         [[1 1] [1 1]]))
+  (is (= (internal (board :first [1 2] :second [3 4]))
+         [[1 2] [3 4]])))
 
-(board/->Board 1 2 3)
-
-
-(deftest first-board
-  (is (= 4 (+ 2 2)))
-  (is (= 73 (+ 3 4))))
