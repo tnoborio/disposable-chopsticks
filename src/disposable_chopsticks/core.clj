@@ -26,24 +26,14 @@
   (map {\a 0 \b 1 \c 2 \d 3
         \1 1 \2 2 \3 3 \4 4} str))
 
-(parse-action "ab3")
-
-(defn get-winner-message
-  [winner]
+(defn get-winner-message [winner]
   (str "Player " (name winner) " has wone. Congrats!"))
 
-(defn get-curr-player-message
-  [curr-player]
+(defn get-curr-player-message [curr-player]
   (let [base (str "Current player: " (name curr-player))]
     (if (= curr-player computer)
       (str base " (the computer)")
       base)))
-
-(get-curr-player-message :1st)
-
-(defn get-prev-player
-  [n]
-  (whose-turn (mod (- n 1) 2)))
 
 (defn utility
   [board]
@@ -53,43 +43,35 @@
     :2nd -1
     nil))
 
-(defn attach-row-coord
-  "Given a row-coord (e.g. 2) and an items list e.g. (0 1), returns a list of lists where
-  row-coord is attached to each item e.g. ( (2 0) (2 1) )"
-  [row-coord items-list]
-  (map #(list row-coord %) items-list))
-
-(defn get-comparison-fn
-  "Returns the appropriate comparison function for minmax"
-  [curr-player]
-  (cond
-    (= curr-player :x) >
-    (= curr-player :o) <))
+(defn comparison-fn [player]
+  (if (= player computer) > <))
 
 (defn minmax [board player counter]
   (prn :minmax board player counter)
   (let [cur-util (utility board)]
-    (if (not (nil? cur-util))
-      cur-util
-      (let [actions (actions board player)
-            comp-fn (get-comparison-fn player)]
+    (if (or (not (nil? cur-util)) (> counter 4))
+      (or cur-util 0)
+      (let [actions (uniq-actions board player)
+            comp-fn (comparison-fn player)]
         (println :actions actions)
         (let [action-util-pairs
-              (map (fn [action] (list action (minmax (next-board board action) (next-player player) (inc counter)))) actions) ; recursively create tree
+              (map (fn [action]
+                     (list action (minmax (next-board board action) (next-player player) (inc counter)))) actions) ; recursively create tree
+              _           (println :action-util-pairs action-util-pairs)
+
               best-one (first (sort-by last comp-fn action-util-pairs))]        ; percolate best-move up the tree
-          (println :action-util-pairs action-util-pairs )
-          (println :best-one best-one )
+          (println :action-util-pairs action-util-pairs)
+          (println :best-one best-one)
           (println (str "DEBUG: best one is: " best-one " counter is: " counter))
           (if (= counter 1)
-            (first best-one)            ; choose best move by board
-            (last best-one)))))))      ; choose best move by utility function
+            (next-board board (first best-one))
+            (last best-one)))))))
 
 (defn apply-move-board
   [board player]
   (prn :apply-move-board board player)
   (if (= player computer)
-    (do
-      (minmax board player 1))
+    (minmax board player 1)
     (do
       (println "Your move: (<from letter><to letter><number>)")
       (let [action (parse-action (read-line))]
@@ -104,7 +86,6 @@
          board (new-board)]
     (println (get-curr-player-message player))
     (print-board board)
-    (prn "hoge")
     (if-let [won-player (won? board)]
       (println (get-winner-message won-player))
       (let [applied-board (apply-move-board board player)]
