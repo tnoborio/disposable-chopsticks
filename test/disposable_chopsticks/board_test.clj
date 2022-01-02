@@ -50,9 +50,11 @@
   (is (= (state (next-board (new-board :1st [4 0] :2nd [1 2]) [2 0]))
          {:1st [0 0] :2nd [1 2]}))
   (is (= (state (next-board (new-board :1st [4 0] :2nd [1 2]) [3 0]))
-         {:1st [1 0] :2nd [1 2]})))
+         {:1st [1 0] :2nd [1 2]}))
+  (is (= (state (next-board (new-board :1st [0 4] :2nd [1 2]) [2 1]))
+         {:1st [0 0] :2nd [1 2]})))
 
 (deftest won?-test
   (is (= (won? (new-board)) nil))
-  (is (= (won? (new-board :1st [0 0] :2nd [2 3])) :1st))
-  (is (= (won? (new-board :1st [2 3] :2nd [0 0])) :2nd)))
+  (is (= (won? (new-board :1st [0 0] :2nd [2 3])) :2nd))
+  (is (= (won? (new-board :1st [2 3] :2nd [0 0])) :1st)))

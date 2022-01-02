@@ -18,31 +18,32 @@
   (map {\a 0 \b 1 \c 2 \d 3
         \1 1 \2 2 \3 3 \4 4} str))
 
-(defn utility [board]
+(defn utility [board turn]
   (condp = (won? board)
-    :1st -1
-    :2nd 1
+    :1st (if (= turn :2nd) 1 -1)
+    :2nd (if (= turn :1st) 1 -1)
     (let [{first-hands :1st second-hands :2nd} (state board)
-          first-hands (sort first-hands)
-          second-hands (sort second-hands)]
+          [first-hands second-hands] [(sort first-hands) (sort second-hands)]
+          my-hands (if (= turn :1st) first-hands second-hands)
+          op-hands (if (= turn :2nd) second-hands first-hands)]
       (cond
-        (= first-hands [0 1]) 0.5
-        (= second-hands [0 1]) -0.5
+        (= my-hands [0 1]) 0.5
+        (= op-hands [0 1]) -0.5
 
-        (and (= first-hands [1 2]) (= second-hands [2 3])) -0.75
-        (and (= first-hands [2 3]) (= second-hands [1 2])) 0.75
+        (and (= my-hands [1 2]) (= op-hands [2 3])) -0.75
+        (and (= my-hands [2 3]) (= op-hands [1 2])) 0.75
 
-        (and (= first-hands [2 2]) (= second-hands [1 2])) -0.5
-        (and (= first-hands [1 2]) (= second-hands [2 2])) 0.5
+        (and (= my-hands [2 2]) (= op-hands [1 2])) -0.5
+        (and (= my-hands [1 2]) (= op-hands [2 2])) 0.5
 
         :else nil))))
 
 (defn minmax [board player computer counter]
-  (let [cur-util (utility board)]
+  (let [cur-util (utility board player)]
     (if (or (not (nil? cur-util)) (> counter 8))
       (or cur-util 0)
       (let [actions (uniq-actions board player)
-            comp-fn (if (= player computer) < >)
+            comp-fn (if (= player computer) > <)
             action-pairs
             (map #(list % (minmax (next-board board %) (next-player player) computer (inc counter))) actions)
             best-one (first (sort-by last comp-fn action-pairs))]
@@ -65,7 +66,7 @@
           (next-board board action))))))
 
 
-(defn -main [{:keys [computer board] :or {computer :2nd board [[1 1] [2 2]]}}]
+(defn -main [{:keys [computer board] :or {computer :2nd board [[1 1] [1 1]]}}]
   (loop [player :1st
          board (new-board :1st (first board) :2nd (second board))]
     (print-board board player computer)
