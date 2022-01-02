@@ -70,8 +70,8 @@
 
 (defn- -won? [{first-hands :1st second-hands :2nd}]
   (cond
-    (= first-hands [0 0]) :1st
-    (= second-hands [0 0]) :2nd))
+    (= first-hands [0 0]) :2nd
+    (= second-hands [0 0]) :1st))
 
 (deftype Board [state]
   IBoard
