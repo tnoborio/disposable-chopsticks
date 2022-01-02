@@ -87,5 +87,3 @@
    {:1st (or first-hands [1 1])
     :2nd (or second-hands [1 1])}))
 
-(actions (new-board) :1st)
-

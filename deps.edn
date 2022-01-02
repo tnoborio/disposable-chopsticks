@@ -1,7 +1,10 @@
 {:deps {}
 
  :aliases
- {:test {:extra-paths ["test"]
+ {:run {:exec-fn disposable-chopsticks.core/-main
+        :exec-args {:computer :2nd}}
+  
+  :test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
                       {:git/tag "v0.5.0" :git/sha "b3fd0d2"}}
          :main-opts ["-m" "cognitect.test-runner"]
